@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sports Person Classifier</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .container {
+            margin-top: 50px;
+        }
+        .centered-text {
+            text-align: center;
+        }
+        .image-container {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+        }
+        .image-container img {
+            border-radius: 50%;
+            height: 100px;
+            width: 100px;
+        }
+        .upload-box {
+            border: 2px dashed #ccc;
+            padding: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center">Sports Person Classifier</h1>
+
+        <div class="image-container">
+            <div>
+                <img src="/static/player_images/lionel_messi.png" alt="Lionel Messi">
+                <p class="centered-text">Lionel Messi</p>
+            </div>
+            <div>
+                <img src="/static/player_images/maria_sharapova.png" alt="Maria Sharapova">
+                <p class="centered-text">Maria Sharapova</p>
+            </div>
+            <div>
+                <img src="/static/player_images/roger_federer.jpg" alt="Roger Federer">
+                <p class="centered-text">Roger Federer</p>
+            </div>
+            <div>
+                <img src="/static/player_images/serena_williams.jpg" alt="Serena Williams">
+                <p class="centered-text">Serena Williams</p>
+            </div>
+            <div>
+                <img src="/static/player_images/virat_kohli.jpg" alt="Virat Kohli">
+                <p class="centered-text">Virat Kohli</p>
+            </div>
+        </div>
+
+        <form id="upload-form" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="file">Upload an image of a sports person:</label>
+                <input type="file" class="form-control-file" id="file" name="file" accept="image/*">
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Classify</button>
+        </form>
+
+        <div id="result" class="mt-4"></div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script>
+        $('#upload-form').on('submit', function(e) {
+            e.preventDefault();
+
+            let formData = new FormData();
+            formData.append('file', $('#file')[0].files[0]);
+
+            $.ajax({
+                url: '/classify',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    let resultDiv = $('#result');
+                    resultDiv.empty();
+                    resultDiv.append(`<h3>Predicted: ${response.predicted}</h3>`);
+                    resultDiv.append('<h4>Probabilities:</h4>');
+                    let ul = $('<ul>');
+                    $.each(response.probabilities, function(key, value) {
+                        ul.append(`<li>${key}: ${value}</li>`);
+                    });
+                    resultDiv.append(ul);
+                },
+                error: function(response) {
+                    alert('Error: ' + response.responseJSON.error);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
